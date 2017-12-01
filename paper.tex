@@ -235,7 +235,19 @@ The basic Storm data processing architecture consists of stream of tuples flowin
 \paragraph{Executors} are made up of one or multiple Tasks. Unless specified explicitly, storm assigns single task to a single executor. Executors takes tuples from the in queue, examines the task this tuple is destined to, performs the task and then places the result in the out queue [4].
 
 \subsubsection{Topology}
-\paragraph{Topology} is a directed graph where the vertices represent computation and the edges represents the data flow.
+\paragraph{Topology} is a directed graph where the vertices represent computation and the edges represents the data flow. Another important thing about topologies in Storm is that they are allowed to have cycles. Figure \ref{fig:topo} shows a basic Storm Topology, which consists of Spouts and Bolts. Spouts are the Sources of tuples in a Topology whereas Bolts are the units which process these generated tuples. The user first submits the topology to the Apache Storm Nimbus, which consults with each of the available Supervisors in the worker nodes and assigns each of them with tasks related to the topology.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{topo.png}
+    \caption{Generic Storm Topology}
+    \label{fig:topo}
+   \end{center}
+\end{figure}
+
+\paragraph{Spout} is the entry point for any data in the Storm Topology. As shown in the figure \ref{fig:topo} spouts take data from external source and emits them into the topology as tuples. The input source could be a Heterogenous data source.
+
+\paragraph{Bolt} are the processing entities of a Topology. It receives raw tuples emitted by spouts or processed tuples sent by another bolt and sends it down the pipe after it has completed its processing.
 
 \section{Einleitung}
 Ab diesem Abschnitt fängt die eigentliche Arbeit an und man beginnt mit einer Einführung und der Einordnung des Themas.
