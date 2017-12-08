@@ -234,7 +234,7 @@ The basic Storm data processing architecture consists of stream of tuples flowin
 
 \paragraph{Executors} are made up of one or multiple Tasks. Unless specified explicitly, storm assigns single task to a single executor. Executors takes tuples from the in queue, examines the task this tuple is destined to, performs the task and then places the result in the out queue [4].
 
-\subsubsection{Topology}
+\subsection{Topology}
 \paragraph{Topology} is a directed graph where the vertices represent computation and the edges represents the data flow. Another important thing about topologies in Storm is that they are allowed to have cycles. Figure \ref{fig:topo} shows a basic Storm Topology, which consists of Spouts and Bolts. Spouts are the Sources of tuples in a Topology whereas Bolts are the units which process these generated tuples. The user first submits the topology to the Apache Storm Nimbus, which consults with each of the available Supervisors in the worker nodes and assigns each of them with tasks related to the topology.
 
 \begin{figure}
@@ -245,9 +245,36 @@ The basic Storm data processing architecture consists of stream of tuples flowin
    \end{center}
 \end{figure}
 
-\paragraph{Spout} is the entry point for any data in the Storm Topology. As shown in the figure \ref{fig:topo} spouts take data from external source and emits them into the topology as tuples. The input source could be a Heterogenous data source.
+\subsubsection{Spout} is the entry point for any data in the Storm Topology. As shown in the figure \ref{fig:topo} spouts take data from external source and emits them into the topology as tuples. The input source could be a Heterogenous data source.
 
-\paragraph{Bolt} are the processing entities of a Topology. It receives raw tuples emitted by spouts or processed tuples sent by another bolt and sends it down the pipe after it has completed its processing.
+\subsubsection{Bolt} are the processing entities of a Topology. It receives raw tuples emitted by spouts or processed tuples sent by another bolt and sends it down the pipe after it has completed its processing.
+
+\section{Practical Use Case}
+Apache Storm is used for stream processing of data, in many sources [2,3] a word frequency count example has been shown which can be considered to be trivial, but in actual practice it can be used to execute complicated algorithms. For the purposes of this paper we consider a trivial but different example of \textbf{Sentiment Analysis}.
+
+\subsection{Scenario}
+
+\subsubsection{Description}
+\paragraph{Let us consider} a company which produces a range of products, for example \textbf{Apple Inc.} produces IPhones, IPods, MacBooks, etc. For such a big company an understanding of the sentiment of the people is important to maintain a positive outlook. The company can also analyze the feedback people place on a specific product, to change and adjust the pricing schemes in real time to the demand.  At present there are many social media networks available and people tend to share their views on these networks,  \textbf{Twitter} is also one of these social networks where a number of posts are available publicly and can be analyzed to obtain a generalized view about a specific product or the company in general.
+
+\subsubsection{Proposed Solution}
+
+\paragraph{Solution} to the scenario can be implemented using \textbf{Apache Storm} to process the tweets in real time. Figure \ref{fig:solution} shows the simplified system overview, consisting of Twitter Streaming Servers as the source of information. This information is processed in the Storm Clusters from within the Company Infrastructure and the analyzed result is reported to the User Interface, which can be accessed by the appropriate user.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{solution.png}
+    \caption{Generic Streaming Solution implemented in this use case}
+    \label{fig:solution}
+   \end{center}
+\end{figure}
+
+\paragraph{This} is not the only possible solution, there are multiple other tools such as \textbf{Spark Streaming}, \textbf{Samza}, etc. but this paper considers Apache Storm as it is in the spotlight of this paper, for further details regarding other available tools and their comparisons with Apache Storm, please consider the section \ref{sec:othertools} for further details.
+
+\subsection{Practical Implementation}
+
+\section{Other Tools}
+ \label{sec:othertools}
 
 \section{Einleitung}
 Ab diesem Abschnitt fängt die eigentliche Arbeit an und man beginnt mit einer Einführung und der Einordnung des Themas.
