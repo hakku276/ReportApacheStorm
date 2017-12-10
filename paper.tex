@@ -164,13 +164,13 @@ qt=false%
 
 \supervisor{Matthias Wieland}
 
-\seminar{Seminarbezeichung}
+\seminar{Advanced Topics in Data Management}
 
 \semester{WS 2017/2018}
 
 \abgabedatum{Stuttgart, 11.12.2017}
 
-\institute{\email{aanal.basaula@gmail.com}}
+\institute{\email{st152995@stud.uni-stuttgart.de}}
 
 %\frontpagede % creates the frontpage (in German)
 \frontpageen % creates the frontpage (in English)
@@ -181,7 +181,7 @@ qt=false%
 \maketitle
 
 \begin{abstract}
-In today's world everyone is connected to this ever increasing network of computers be it via a Personal computer, a smart phone or an Embedded Device such as your smart home appliances. These devices generate huge amounts of data every instance, that can be analyzed to uncover patterns, some of which can be used to improve businesses as well. In this report we talk about such scenario and the available tools which allows us to process large data streams with minimum latency. Specifically Apache Storm, a publicly available Stream Processing Tool. We will dive into the concepts of Storm, how one can design usable systems with it and also compare storm to the other available tools.
+Apache Storm is one of the available open source tools for Stream Data Processing. This document provides a brief overview of the intricacies of the Architecture of Storm and tends to proceed further on the details of considerations required to design a Solution based on Storm. The design considerations relating to deployment of Storm System as a Lambda or a Lambda-less Architecture and the sketch of the various internal components of Storm i.e. Bolts, Spouts. We consider a practical implementation of Storm to try and express the theoretical design considerations in real practice. Finally we list out the other available tools and compare them to Storm with regard to Performance, Resilience and various other parameters.
 \end{abstract}
 
 \begin{keywords}
@@ -379,154 +379,6 @@ The only spout uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc
  
  \section{Discussion}
 <What I felt about the tool, ease of use and other general aspects> 
- 
- 
- The zookeeper services can be run in a single machine or can be deployed in a cluster as well. A single zookeeper instance can also be shared between other services and Apache Storm, but, the major consideration to be taken into account is performance. If there are multiple number of systems that utilize the zookeeper, the Zookeeper can run out of number of clients it can service, thus affecting up-time of the systems in general.[4] Whereas having a dedicated Zookeeper allows a high performing cluster.
 
-\section{Einleitung}
-Ab diesem Abschnitt fängt die eigentliche Arbeit an und man beginnt mit einer Einführung und der Einordnung des Themas.
 
-Absätze werden durch Leerzeilen erreicht.
-
-Als \LaTeX-Editor sind TeXstudio\footnote{\url{http://texstudio.sourceforge.net/}} oder TeXlipse\footnote{\url{http://texlipse.sourceforge.net/}} empfehlenswert.
-
-Für die Versionskontrolle bietet es sich an, jeden Satz in einer neuen Zeile zu beginnen.
-
-Als Nachschlagewerk und gute Einführung in das Thema \LaTeX\ bietet sich \emph{The Not So Short Introduction to \LaTeXe}\ von Oetiker et al an.
-Auf der Seite \url{http://tobi.oetiker.ch/lshort/} ist dieses Dokument zum Herunterladen bereitgestellt.
-
-Ein weiteres, empfehlenswertes Dokument ist das \emph{Kochbuch für \LaTeX{}}, welches auf der Seite \url{http://www.uni-giessen.de/hrz/tex/cookbook/cookbook.html} zu finden ist.``````````````2
-
-Eine Vorlage für Bachelor- und Masterarbeiten ist unter \url{https://github.com/latextemplates/uni-stuttgart-computer-science-template} zu finden.
-
-Für weitere Anleitungen und Informationen empfiehlt sich die Homepage \url{http://www.dante.de/}.
-Des Weiteren gibt es eine Reihe von Literatur zum Thema \LaTeX\ von Bürger~\cite{buerger}, Kopka~\cite{kopka}, Günther~\cite{guenther} und vielen anderen.
-Weitere Hinweise zu \LaTeX{} unter \url{http://wiki.flupp.de/latex}.
-Zu Ausarbeitungen im Allgemeinen unter \url{http://wiki.flupp.de/studium/ausarbeitungen}.
-
-Die Arbeit gleidert sich wie folgt:
-...
-Schließlich wird in \cref{sec:zusfas} eine Zusammenfassung der Arbeit und ein Ausblick auf weitere Forschungsthemen gegeben.
-
-\subsection{Beispiel für Überschrift 2.~Ebene}
-
-\subsubsection{Beispiel für Überschrift 3.~Ebene}
-
-\paragraph{Beispiel für Überschrift 4.~Ebene}
-Dies ist Beispielabsatz zu einem Beispiel einer Überschrift 4.~Ebene.
-
-\section{Formatierungsrichtlinien}
-
-\subsection{Tabellen}
-In diesem Abschnitt wird das Einfügen einer Tabelle und das Füllen derselben mit Werten gezeigt.
-Im Gegensatz zu Abbildungen erfolgt die Beschriftung üblicherweise oberhalb und nicht unterhalb der Tabelle.
-Der letzte Satz der Beschriftung endet ohne Punkt.
-Die \Cref{tab:bsp} zeigt die Größenentwicklung der Weltbevölkerung von 8000 v.\,Chr. bis 1980 n.\,Chr.
-
-\begin{table}
-\caption{Dieses Beispiel entstammt dem {\it\TeX{}Buch,} S.\,246}
-\label{tab:bsp}
-\begin{center}
-\begin{tabular}{r@{\quad}rl}
-\hline
-\multicolumn{1}{l}{\rule{0pt}{12pt}
-                   Jahr}&\multicolumn{2}{l}{Weltbevölkerung}\\[2pt]
-\hline\rule{0pt}{12pt}
-8000 v.\,Chr. &     5,000,000& \\
-  50 n\,Chr. &   200,000,000& \\
-1650 n\,Chr. &   500,000,000& \\
-1945 n\,Chr. & 2,300,000,000& \\
-1980 n\,Chr. & 4,400,000,000& \\[2pt]
-\hline
-\end{tabular}
-\end{center}
-\end{table}
-
-\subsection{Code-Beispiele}
-
-\Cref{lst:example} zeigt ein Code-Beispiel.
-
-\begin{lstlisting}[float,caption=A floating example,label=lst:example]
-public static void main(String[] args) {
-}
-\end{lstlisting}
-
-\subsection{Formeln}
-Formeln sind in aufsteigender Reihenfolge, beginnend mit der Nummer~1, durchzunummerieren.
-Dies erleichtert den Bezug vom Text auf die zugehörige Formel.
-Die Formel
-%
-\begin{equation}
-  \psi (u) = \int_{o}^{T} \left[\frac{1}{2}
-  \left(\Lambda_{o}^{-1} u,u\right) + N^{\ast} (-u)\right] dt
-\end{equation}
-%
-berechnet etwas.
-Formeln sind bezüglich der Zeichensetzung wie normaler Text zu behandeln, d.\,h.\ falls ein Satz mit einer Formel endet, folgt dieser ein Punkt, der üblicherweise durch ein schmales Leerzeichen abgesetzt wird.
-
-\subsection{Abbildungen}
-Im nachfolgenden Beispiel wird dargestellt, wie Grafiken eingefügt werden und wie die Beschriftung bzw.\ die Formatierung derselben auszusehen hat.
-
-Bei Abbildungen erfolgt die Beschriftung unterhalb der Abbildung (siehe \cref{fig:logo}).
-Der letzte Satz der Beschreibung endet wie bei Tabellenbeschriftungen ohne Punkt.
-Um eine gute Qualität zu erzielen, muss die Auflösung der Abbildungen mindestens 300~DPI betragen.
-Bei Strichzeichnungen empfiehlt sich sogar eine weit höhere Auflösung, zwischen 800 und
-1200~DPI.
-
-Am besten Vektorgraphiken nehmen und als \texttt{.pdf} exportieren.
-
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=.5\textwidth]{ipvslogo.png}
-    \caption{Das Logo des Instituts}
-    \label{fig:logo}
-   \end{center}
-\end{figure}
-
-\subsection{Literaturverweise}
-Ein Verweis auf eine im Literaturverzeichnis aufgeführte
-Literaturquelle wird durch die in eckige Klammern eingeschlossene
-Nummer der entsprechenden Literaturquelle angegeben. Als Beispiel ist
-hier nochmals auf Buerger~\cite{buerger} verwiesen.
-
-\subsection{Anführungszeichen}
-Entweder "`so"' tippen oder \enquote{so}.
-``So'' bitte nicht, das führt zu englischen Anführungszeichen.
-
-\subsection{Sonstiges}
-Brackets work as designed:
-<test>
-
-The symbol for powerset is now correct: $\powerset$ and not a Weierstrass p ($\wp$).
-
-\begin{inparaenum}
-\item All these items...
-\item ...appear in one line
-\item This is enabled by the paralist package.
-\end{inparaenum}
-
-``something in quotes'' using plain tex or use \enquote{the enquote command}.
-
-You can now write words containing hyphens which are hyphenated (application"=specific) at other places.
-This is enabled by an additional configuration of the babel package.
-In case you write \enquote{application-specific}, then the word will only be hyphenated at the dash.
-You can also write applica\allowbreak{}tion-specific, but this is much more effort.
-
-\section{Zusammenfassung}
-\label{sec:zusfas}
-Dieser Absatz schließt die Arbeit ab.
-
-\subsubsection*{Acknowledgments}
-...
-
-In the bibliography, use \texttt{\textbackslash textsuperscript} for ``st'', ``nd'', ...:
-E.g., \enquote{The 2\textsuperscript{nd} conference on examples}.
-When you use \href{https://www.jabref.org}{JabRef}, you can use the clean up command to achieve that.
-See \url{https://help.jabref.org/en/CleanupEntries} for an overview of the cleanup functionality.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\bibliographystyle{splncs03}
-\bibliography{paper}
-Alle Links wurden zuletzt am 22.06.2015 geprüft.
 \end{document}
