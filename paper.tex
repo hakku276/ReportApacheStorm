@@ -301,14 +301,6 @@ Since we should have only one instance of Aggregator, to be able to get the aggr
 \subsubsection{Resilience:} Apache storm includes APIs which allow users to develop solutions which are resilient in nature. Using the acker bolt as show in figure \ref{fig:acker}, users can track the progress of the tuple injected into the system. Thus, writing a spout which can replay the tuple in case of failures allows us to guarantee the processing of data.
 \subsubsection{Interoperability:} The designed topology should be interoperable with different sources of data, and by default should work out of the box by adding simply other Spouts in the topology. This also amounts to the maintainability of the code.
 
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=\textwidth]{ranking.png}
-    \caption{Example Ranking Topologies}
-    \label{fig:ranking}
-   \end{center}
-\end{figure}
-
 
 
 \section{Practical Use Case}
