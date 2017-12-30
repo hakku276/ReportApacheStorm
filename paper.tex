@@ -252,24 +252,23 @@ The basic Storm data processing architecture consists of stream of tuples flowin
 \subsubsection{Bolt} 
 \paragraph{Bolts} are the processing entities of a Topology. It receives raw tuples emitted by spouts or processed tuples sent by another bolt and sends it down the pipe after it has completed its processing.
 
-\section{Stream Processing}
+\section{Stream Processing: Design Considerations}
 A stream is a continuous flow of data from one point to the another. A Stream Processing system works on these data streams, the work may just be simple transformations, but also could be as complex as predictive analysis. A stream processing system depending on the nature of application has different requirements. 
 
-Let us consider a Streaming service (may it be video or audio), which performs some transformations on the data stream before serving the client. A loss in packets is not a major problem as a little degradation in Quality for a short period of time is acceptable in this scenario. As a counter example scenario, consider a service that keeps track of the stream of purchases, it is necessary to not miss any of these important data. Apart from this, we also need to consider various other factors for design of a stream processing system, such as resilience, scalability, etc. These considerations will be scrutinized in this section.
+Let us consider the news feed service provided by any social networking site, we know that in any of these websites we can read posts created by our friends or family and it does not matter if we see them at the very instance they post. But, there are cases such as a stream of purchases, where we want the data to be visible as soon as available separate design considerations should be made. This section focuses on the various considerations that are to be made while designing a stream processing system, specifically using Apache Storm.
 
 \subsection{System Architecture}
-As discussed above, a system depending upon the requirement is allowed to drop a few data sets thus allowing us to utilize the lambda-less architecture, whereas others require complete data sets therefore utilizing the Lambda Architecture.
+As discussed above, a data processing stream has different requirements and according to these various requirements, the System can be modified to suit the needs. The major two System architectures currently available are the Lambda Architechture and the Lambda-less (or Kappa) Architecture.
 
 \subsubsection{Lambda-less Architecture}
-\paragraph{Apache Storm} can handle data processing without the need of persistence layer and offers its own 
-resiliency mechanisms to make sure data is tuples injected into the system are processed. Section \ref{sec:resilience} explains in further detail how storm tries and guarantees a reliable throughput.
+\paragraph{Kappa Architecture} or the lambda-less Architecture is a System Architecture concept where there are only two layers, namely Speed Layer and Serving Layer.The data input to the system is processed at real time to retrieve the results at real time. The major advantage of this type of system is that there is minimum latency. This type of architecture is more suitable in cases where an accurate view of the data is preferable without a lot of delay. Cash transactions might be one of these cases where a minimum delay for transaction visualization is suitable added the calculations done on these data sets are properly formulated as well.
 
-Lambda less architectures are not reliable and do not tend to provide persistence storage as every result is stored in memory and is suitable only for systems which require no storage of calculated information. In section \ref{sec:usecase}
+This architecture can be considered has an advantage over the lambda architecture (described later) , that a single code base is to be maintained throughout the life of the software. But, any apparent change to the code base results in a need for a duplicate cluster to analyze the data again and update the view. A working example of this architecture is presented in the section \ref{sec:usecase}. One may use this architecture over the lambda architecture when both the algorithms for the batch processing and stream processing are the same and the requirements mentioned above are the major focus.
 
 \subsubsection{Lambda Architecture}
-\paragraph{Lambda Architecture} is a data processing Architecture designed to handle high volume data utilizing both batch and stream processing. Apache storm allows users to integrate Persistence models into the system. This flexibility allows users to integrate batch processing into the system as well as seen in figure \ref{fig:lambda}.
+\paragraph{Lambda Architecture} is a data processing Architecture designed to handle high volume data utilizing the best of both batch and stream processing. Figure \ref{fig:lambda} shows a generic architecture principle for Lambda Architecture. The three composed layers are: Speed Layer, Batch Layer and Serving Layer. The batch processing layer provides an accurate view of the data but provides results in batches, whereas the speed layer provides current data visualizations which may or may not be accurate depending upon the algorithm. The serving layer utilizes both the speed layer as well as the batch layer to fulfill the request to a query.
 
-Data is persisted in the persistence layer so that in cases of high data volume, Batch processing can be done on the input data to provide guaranteed processing and to reduce the computation requirement on the Real Time Data Processing Unit.\cite{lambdastorm}
+Lambda architecture requires maintanence of two separate systems as well as code bases, and thus may result in higher cost. But, the added advantage is that the batch processing layer code can be optmized for the given data set to obtain better results. An example scenario could be a specialized news feed which requires machine learning algorithms to customize the user experience. The Speed layer could be used to deliver recent news, but the batch layer could use machine learning to produce the customized feed. An added advantage is that Lambda architecture holds the input data unchanged.\cite{lambdastorm}
 
 \begin{figure}
   \begin{center}
@@ -280,7 +279,7 @@ Data is persisted in the persistence layer so that in cases of high data volume,
 \end{figure}
 
 \subsection{Topology Design Considerations}
-A storm topology design with the spouts and bolts should be properly considered. A spout should inject data into the topology from external sources where as the bolt should be a smallest implementable task. A storm topology should also be considered with various considerations in mind:
+A storm topology design with the spouts and bolts and affects the overall system thus should be properly considered. A spout should inject data into the topology from external sources where as the bolt should be a smallest implementable task. A storm topology should also be considered with various considerations in mind:
 
 \subsubsection{Scalability:} A designed topology should be considered with scalability in mind. The major question is what configuration of bolts enables us to process greater amount of data at real time. Let us consider a simple example of word count topology which counts the repetition of words and ranks the most used words. It can be performed by simply including a spout and two bolts, the first of which to count the number of words and the second to aggregate and rank it (see fig. \ref{fig:ranking} Topology Setup 1).
 Since we should have only one instance of Aggregator, to be able to get the aggregated result, in cases of increased data load, the number of rolling count bolts can be increased, but the Aggregation Bolt cannot be increases thus adding increased load at this node. To relax the demand on this node, we can introduce another bolt, the Intermediate Ranking Bolt, which is responsible for ranking the words at a certain predefined intervals and passes the intermediate ranks to the aggregator. This reduces load on the Aggregator since we can increase the intermediate ranking bolts to cope with the increased load.
@@ -292,7 +291,9 @@ Since we should have only one instance of Aggregator, to be able to get the aggr
     \label{fig:ranking}
    \end{center}
 \end{figure}
+
 \subsubsection{Resilience:} Apache storm includes APIs which allow users to develop solutions which are resilient in nature. Using the acker bolt as show in figure \ref{fig:acker}, users can track the progress of the tuple injected into the system. Thus, writing a spout which can replay the tuple in case of failures allows us to guarantee the processing of data.
+
 \subsubsection{Interoperability:} The designed topology should be interoperable with different sources of data, and by default should work out of the box by adding simply other Spouts in the topology. This also amounts to the maintainability of the code.
 
 \subsection{Storm Resilience}
@@ -356,9 +357,12 @@ The tweet spout contacts the twitter streaming server and fetches the available 
 
 The only spout uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc}) to connect to Twitter Streaming Server and consume the Tweets generated in real time. Whereas the Bolts were programmed in java and the code can be viewed in \url{https://github.com/hakku276/storm-sentiment-analysis}.
 
+\subsection{Deployment}
+\paragraph{Deploying} a storm topology requires a running zookeeper, nimbus and at least one worker node. In this practical implementation we use a single node to handle all the processing tasks. The zookeeper as well as the nimbus was instantiated in the local machine, along with a supervisor for the worker node. The java code was compiled and packaged as a jar and submitted to nimbus for deployment. The topology was left for around 5 hours which can be observed in the screenshots of the reporting UI taken. 
+
 \section{Other Tools}
  \label{sec:othertools}
- 
+ Stream processing is a topic under constant focus at present and a lot of tools as well as models have been designed and created to support such processing. Apart from Apache storm there are other tools such as, 
  <Describe shortly that other tools are available as well and list them with short descriptions>
  
  \subsection{Comparision between Storm, Spark and Samza}
@@ -378,10 +382,7 @@ The only spout uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc
  <Compare the resilience model of the tools>
  
  \section{Discussion}
-<What I felt about the tool, ease of use and other general aspects> 
- 
- 
- The zookeeper services can be run in a single machine or can be deployed in a cluster as well. A single zookeeper instance can also be shared between other services and Apache Storm, but, the major consideration to be taken into account is performance. If there are multiple number of systems that utilize the zookeeper, the Zookeeper can run out of number of clients it can service, thus affecting up-time of the systems in general.\cite{stormtwitter} Whereas having a dedicated Zookeeper allows a high performing cluster.
+<What I felt about the tool, ease of use and other general aspects>
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
