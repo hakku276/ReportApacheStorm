@@ -181,7 +181,7 @@ qt=false%
 \maketitle
 
 \begin{abstract}
-Apache Storm is one of the available open source tools for Stream Data Processing. This document provides a brief overview of the intricacies of the Architecture of Storm and tends to proceed further on the details of considerations required to design a Solution based on Storm. The design considerations relating to deployment of Storm System as a Lambda or a Lambda-less Architecture and the sketch of the various internal components of Storm i.e. Bolts, Spouts. We consider a practical implementation of Storm to try and express the theoretical design considerations in real practice. Finally we list out the other available tools and compare them to Storm with regard to Performance, Resilience and various other parameters.
+Apache Storm is one of the available open source tools for Stream Data Processing. This document provides a brief overview of the intricacies of the Architecture of Storm and tends to proceed further on the details of considerations required to design a Solution based on Storm. The design considerations relating to deployment of Storm System as a Lambda or a Lambda-less Architecture and the sketch of the various internal components of Storm i.e. Bolts, Spouts. We consider a practical implementation of Storm to try and express the theoretical design considerations in practice. Finally we list out the other available tools and compare them to Storm with regard to Performance, Resilience and various other parameters.
 \end{abstract}
 
 \begin{keywords}
@@ -252,13 +252,29 @@ The basic Storm data processing architecture consists of stream of tuples flowin
 \subsubsection{Bolt} 
 \paragraph{Bolts} are the processing entities of a Topology. It receives raw tuples emitted by spouts or processed tuples sent by another bolt and sends it down the pipe after it has completed its processing.
 
+\subsection{Fault Tolerance and Resilience}
+\label{sec:resilience}
+Apache storm offers fault tolerance and resilience mechanisms with out of the box support and is tolerant against different types of failures. Nimbus, being the main master node, is in-charge of all the other worker nodes. Under the circumstance that a worker node fails, Nimbus re-spawns a worker node and assigns the tasks to this node. If the nimbus itself fails, the nimbus is not re-started automatically, but the worker nodes do not stop processing the stream. The nimbus can be later on restarted manually. During this phase, if a worker fails, it will not be restarted. The supervisor is also an active element within the Storm Architecture and keeps the Nimbus posted about it's current status. The \textbf{heartbeat} event is scheduled to run every 15 seconds and it reports to the Nimbus that the worker node is alive. \cite{stormtwitter}
+
+Apache Storm supports two types of processing schemes, \textbf{at least once} where each tuple is processed as the name suggests, at least once, and the other \textbf{at most once}, where the tuples are either processed once or dropped in cases of failure. To provide \textbf{at least once} semantics, Storm maintains an acker bolt, which keeps track of the tuple flow in the directed acyclic graph.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=.7\textwidth]{acker.png}
+    \caption{Storm Acker Bolt \cite{stormtwitter}}
+    \label{fig:acker}
+   \end{center}
+\end{figure}
+
+\paragraph{Figure} \ref{fig:acker} shows the Acker bolt integration with the storm topology. It keeps track of the tuple flow starting from the point where it has been injected into the topology till it leaves the topology. After the tuple has left the topology, an \textbf{ack} is sent to the Spout, at this point, it can decide to remove the Tuple from memory.
+
 \section{Stream Processing: Design Considerations}
-A stream is a continuous flow of data from one point to the another. A Stream Processing system works on these data streams, the work may just be simple transformations, but also could be as complex as predictive analysis. A stream processing system depending on the nature of application has different requirements. 
+A stream is a continuous flow of data from one point to the another. A Stream Processing system works on these data streams, the work may just be simple transformations, but also could be as complex as predictive analysis. A stream processing system depending on the nature of application has different requirements.
 
 Let us consider the news feed service provided by any social networking site, we know that in any of these websites we can read posts created by our friends or family and it does not matter if we see them at the very instance they post. But, there are cases such as a stream of purchases, where we want the data to be visible as soon as available separate design considerations should be made. This section focuses on the various considerations that are to be made while designing a stream processing system, specifically using Apache Storm.
 
 \subsection{System Architecture}
-As discussed above, a data processing stream has different requirements and according to these various requirements, the System can be modified to suit the needs. The major two System architectures currently available are the Lambda Architechture and the Lambda-less (or Kappa) Architecture.
+As discussed above, a data processing stream has different requirements and according to these various requirements, the System can be modified to suit the needs. The major two System architectures currently available are the Lambda Architecture and the Lambda-less (or Kappa) Architecture.
 
 \subsubsection{Lambda-less Architecture}
 \paragraph{Kappa Architecture} or the lambda-less Architecture is a System Architecture concept where there are only two layers, namely Speed Layer and Serving Layer.The data input to the system is processed at real time to retrieve the results at real time. The major advantage of this type of system is that there is minimum latency. This type of architecture is more suitable in cases where an accurate view of the data is preferable without a lot of delay. Cash transactions might be one of these cases where a minimum delay for transaction visualization is suitable added the calculations done on these data sets are properly formulated as well.
@@ -292,24 +308,9 @@ Since we should have only one instance of Aggregator, to be able to get the aggr
    \end{center}
 \end{figure}
 
-\subsubsection{Resilience:} Apache storm includes APIs which allow users to develop solutions which are resilient in nature. Using the acker bolt as show in figure \ref{fig:acker}, users can track the progress of the tuple injected into the system. Thus, writing a spout which can replay the tuple in case of failures allows us to guarantee the processing of data.
+\subsubsection{Resilience:} Apache storm includes APIs which allow users to develop solutions which are resilient in nature. Using the acker bolt as show in figure \ref{fig:acker}, users can track the progress of the tuple injected into the system. Thus, writing a spout which can replay the tuple in case of failures allows us to guarantee the processing of data. For additional details please follow Section \ref{sec:resilience}.
 
 \subsubsection{Interoperability:} The designed topology should be interoperable with different sources of data, and by default should work out of the box by adding simply other Spouts in the topology. This also amounts to the maintainability of the code.
-
-\subsection{Storm Resilience}
-\label{sec:resilience}
-
-It has two types of processing schemes, \textbf{at least once} where each tuple is processed as the name suggests, at least once, and the other \textbf{at most once}, where the tuples are either processed once or dropped in cases of failure. To provide \textbf{at least once} semantics, Storm maintains an acker bolt, which keeps track of the tuple flow in the directed acyclic graph.
-
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=.7\textwidth]{acker.png}
-    \caption{Storm Acker Bolt \cite{stormtwitter}}
-    \label{fig:acker}
-   \end{center}
-\end{figure}
-
-\paragraph{Figure} \ref{fig:acker} shows the Acker bolt integration with the storm topology. It keeps track of the tuple flow starting from the point where it has been injected into the topology till it leaves the topology. After the tuple has left the topology, an \textbf{ack} is sent to the Spout, at this point, it can decide to remove the Tuple from memory.
 
 \section{Practical Use Case}
 \label{sec:usecase}
@@ -355,15 +356,20 @@ The tweet spout contacts the twitter streaming server and fetches the available 
 \subsubsection{Development}
 \paragraph{Writing} code for storm can be achieved by using different programming languages depending upon the user. Apache Storm was designed to be usable with any programming languages\footnote{\url{http://storm.apache.org/about/multi-language.html}} and currently has Adapters available for Ruby, Python, Javascript and Perl.
 
-The only spout uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc}) to connect to Twitter Streaming Server and consume the Tweets generated in real time. Whereas the Bolts were programmed in java and the code can be viewed in \url{https://github.com/hakku276/storm-sentiment-analysis}.
+The only spout available in this example uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc}) to connect to Twitter Streaming Server and consume the Tweets generated in real time. Whereas the Bolts were programmed in java and the code can be viewed in \url{https://github.com/hakku276/storm-sentiment-analysis}.
 
 \subsection{Deployment}
 \paragraph{Deploying} a storm topology requires a running zookeeper, nimbus and at least one worker node. In this practical implementation we use a single node to handle all the processing tasks. The zookeeper as well as the nimbus was instantiated in the local machine, along with a supervisor for the worker node. The java code was compiled and packaged as a jar and submitted to nimbus for deployment. The topology was left for around 5 hours which can be observed in the screenshots of the reporting UI taken. 
 
 \section{Other Tools}
  \label{sec:othertools}
- Stream processing is a topic under constant focus at present and a lot of tools as well as models have been designed and created to support such processing. Apart from Apache storm there are other tools such as, 
- <Describe shortly that other tools are available as well and list them with short descriptions>
+ Stream processing is a topic under constant focus at present and a lot of tools as well as models have been designed and created to support it. Apart from Apache storm there are other tools such as:
+ 
+ \begin{enumerate}
+ \item \textbf{Spark Streaming} is an Open Source based project for stream processing.  It relies on cluster computing systems and operates on batches. The batch window in Spark Streaming is comparatively small thus allowing stream processing.It also provides flexibility to work in different programming languages such as Java, Scala and Python.
+ \item \textbf{Apache Samza} 
+ \item \textbf{Yahoo S4} is also a Real time stream processing tool inspired by the MapReduce Model.
+ \end{enumerate}
  
  \subsection{Comparision between Storm, Spark and Samza}
  
@@ -381,6 +387,8 @@ The only spout uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc
  \subsubsection{Resilience}
  <Compare the resilience model of the tools>
  
+ \subsubsection{Benchmarks}
+ 
  \section{Discussion}
 <What I felt about the tool, ease of use and other general aspects>
 
@@ -390,5 +398,5 @@ The only spout uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc
 \section{Bibliography}
 \bibliographystyle{splncs03}
 \bibliography{paper}
-Alle Links wurden zuletzt am 22.06.2015 geprüft.
+All Links were verified at 10.01.2018
 \end{document}
