@@ -359,16 +359,24 @@ The tweet spout contacts the twitter streaming server and fetches the available 
 The only spout available in this example uses Twitter Hosebird Client (\url{https://github.com/twitter/hbc}) to connect to Twitter Streaming Server and consume the Tweets generated in real time. Whereas the Bolts were programmed in java and the code can be viewed in \url{https://github.com/hakku276/storm-sentiment-analysis}.
 
 \subsection{Deployment}
-\paragraph{Deploying} a storm topology requires a running zookeeper, nimbus and at least one worker node. In this practical implementation we use a single node to handle all the processing tasks. The zookeeper as well as the nimbus was instantiated in the local machine, along with a supervisor for the worker node. The java code was compiled and packaged as a jar and submitted to nimbus for deployment. The topology was left for around 5 hours which can be observed in the screenshots of the reporting UI taken. 
+\paragraph{Deploying} a storm topology requires a running zookeeper, nimbus and at least one worker node. In this practical implementation we use a single node to handle all the processing tasks. The zookeeper as well as the nimbus was instantiated in the local machine, along with a supervisor for the worker node. The Storm User interface presents all these information in a comprehensible manner within a web browser, which can be observed in figure \ref{fig:stormui} The java code was compiled and packaged as a jar and submitted to nimbus for deployment (refer GitHub readme for further details). It was then deployed in storm, which can be observed in the Screen shot for the user interface in figure \ref{fig:stormui}.
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth]{ui-mainpage.png}
+    \caption{Main Page for Storm UI, displays all the cluster related details}
+    \label{fig:stormui}
+   \end{center}
+\end{figure}
 
 \section{Other Tools}
  \label{sec:othertools}
- Stream processing is a topic under constant focus at present and a lot of tools as well as models have been designed and created to support it. Apart from Apache storm there are other tools such as:
+Stream processing is a topic under constant focus at present and a lot of tools as well as models have been designed and created to support it. This section makes a comparison of the available widely accepted tool today. The available tools are mentioned below in brief such as:
  
  \begin{enumerate}
  \item \textbf{Spark Streaming} is an Open Source based project for stream processing.  It relies on cluster computing systems and operates on batches. The batch window in Spark Streaming is comparatively small thus allowing stream processing.It also provides flexibility to work in different programming languages such as Java, Scala and Python.
- \item \textbf{Apache Samza} 
- \item \textbf{Yahoo S4} is also a Real time stream processing tool inspired by the MapReduce Model.
+ \item \textbf{Apache Samza} is an Open Source project for near realtime distributed stream processing framework. It uses Apache Kafka for messaging and Apache Hadoop YARN for fault tolerance, processor isolation, security and resource management.\footnote{http://samza.apache.org/}
+ \item \textbf{Flink Streaming} is also a Real time stream processing tool for distributed systems and builds batch processing on top of the Streaming engine.
  \end{enumerate}
  
  \subsection{Comparision between Storm, Spark and Samza}
