@@ -268,7 +268,7 @@ Apache Storm supports two types of processing schemes, \textbf{at least once} wh
 
 \paragraph{Figure} \ref{fig:acker} shows the Acker bolt integration with the storm topology. It keeps track of the tuple flow starting from the point where it has been injected into the topology till it leaves the topology. After the tuple has left the topology, an \textbf{ack} is sent to the Spout, at this point, it can decide to remove the Tuple from memory.
 
-\section{Stream Processing: Design Considerations}
+	\section{Stream Processing: Design Considerations}
 A stream is a continuous flow of data from one point to the another. A Stream Processing system works on these data streams, the work may just be simple transformations, but also could be as complex as predictive analysis. A stream processing system depending on the nature of application has different requirements.
 
 Let us consider the news feed service provided by any social networking site, we know that in any of these websites we can read posts created by our friends or family and it does not matter if we see them at the very instance they post. But, there are cases such as a stream of purchases, where we want the data to be visible as soon as available separate design considerations should be made. This section focuses on the various considerations that are to be made while designing a stream processing system, specifically using Apache Storm.
@@ -379,26 +379,26 @@ Stream processing is a topic under constant focus at present and a lot of tools 
  \item \textbf{Flink Streaming} is also a Real time stream processing tool for distributed systems and builds batch processing on top of the Streaming engine.
  \end{enumerate}
  
- \subsection{Comparision between Storm, Spark and Samza}
+ \subsection{Comparison between Storm, Spark and Samza}
+This sub section compares the three most widely used tools for Stream Processing, i.e. Storm, Spark and Samza. 
  
- <Gather and show the differences between Storm, Spark and Samza in general>
- 
- \subsubsection{Coding}
- <Compare how the coding is in all these platforms>
+ \subsubsection{Development and Testing}
+All three tools provide their own API for development and testing. A comparision among these tools can be made on a basis of the programming languages supported, Apache Samza currently only supports JVM languages, whereas Spark Streaming supports Java, Scala and Python. Apache Storm on the other hand supports JVM as well as Non JVM languages which increases development speed, as the developers can choose their language according to their comfort.
  
  \subsubsection{Tool setup}
- <Compare how easy it is to setup the tools>
+Setting up of the tool in Apache Storm required minimum effort, achieved by downloading the zookeeper and storm binaries and unpacking them onto the computer. A minor configuration changes required attention, such as the location where zookeeper and storm would store data in. Apart from these details, it worked perfectly out of the box. Along the same line, Spark Streaming follows a similar approach for tool setup and can be installed by simply downloading the tarball and unpacking it. Apache Samza on the other hand maintains a repository \url(https://github.com/apache/samza-hello-samza) which contains the scripts which installs and starts the requirement dependencies in the host.
  
  \subsubsection{Deployment}
- <Compare how easy it is to deploy the code onto the tool>
+Deployment of an artifact on Apache storm is relatively easy. For the java application, one compiles the sources with all the required dependencies into a jar file. The jar file can then be easily deployed into storm via a simple command.
  
- \subsubsection{Resilience}
- <Compare the resilience model of the tools>
+ \subsubsection{Fault Tolerance}
+As stream processing systems run for extended periods, it is quite necessary that these should be able to handle various kinds of faults and still keep processing data as they enter the system. The fault tolerance model for Storm has been extensively described in section \ref{sec:resilience}. Similarly, Spark Streaming and Apache Samza also use various techniques to resolve issues while deployed. Spark Streaming uses write ahead logs(journals) to keep track of all the data operation, and during failure of a worker, the worker is restarted and a state restore is done by reading the logs. This ensures that the data is processed as required. In comparison to Apache Storm, Storm continues to process incoming tuples even when the master node fails, but in Spark, the worker nodes stop working when the master node fails until a new leader starts. This is an added bonus to Storm, since a failed master manual restart would reinstate the state of the system without many changes.
  
  \subsubsection{Benchmarks}
+There have not been a comparative benchmark between Apache Storm, Spark Streaming and Apache Samza, but various sources have different comparisions between tools.  \cite{benchmark} considers Apache Storm, Spark Streaming and Apache Flink. The benchmark design consisted of counting the number of events taking place in the stream. The design was setup to read data from a Kafka Event Queue, the data being processed and result updated into Redis. The result included the window start time and the window end time, thus giving  an idea about the total latency of processing. According to this benchmark, they deduced that Apache Storm and Flink had low latency, whereas Spark Streaming had higher maximum throughput depending upon the batch duration setting.
  
  \section{Discussion}
-<What I felt about the tool, ease of use and other general aspects>
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
