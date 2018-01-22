@@ -181,11 +181,7 @@ qt=false%
 \maketitle
 
 \begin{abstract}
-<<<<<<< HEAD
 Apache Storm is one of the available open source tools for Stream Data Processing. This document provides a brief overview of the intricacies of the Architecture of Storm and tends to proceed further on the details of considerations required to design a Solution based on Storm. The design considerations relating to deployment of Storm System as a Lambda or a Lambda-less Architecture and the sketch of the various internal components of Storm i.e. Bolts, Spouts. We consider a practical implementation of Storm to try and express the theoretical design considerations in real practice. Finally we list out the other available tools and compare them to Storm with regard to Performance, Resilience and various other parameters.
-=======
-Apache Storm is one of the available open source tools for Stream Data Processing. This document provides a brief overview of the intricacies of the Architecture of Storm and tends to proceed further on the details of considerations required to design a Solution based on Storm. The design considerations relating to deployment of Storm System as a Lambda or a Lambda-less Architecture and the sketch of the various internal components of Storm i.e. Bolts, Spouts. We consider a practical implementation of Storm to try and express the theoretical design considerations in practice. Finally we list out the other available tools and compare them to Storm with regard to Performance, Resilience and various other parameters.
->>>>>>> master
 \end{abstract}
 
 \begin{keywords}
@@ -242,23 +238,52 @@ The basic Storm data processing architecture consists of stream of tuples flowin
 \subsection{Topology}
 \paragraph{Topology} is a directed graph where the vertices represent computation and the edges represents the data flow. Another important thing about topologies in Storm is that they are allowed to have cycles. Figure \ref{fig:topo} shows a basic Storm Topology, which consists of Spouts and Bolts. Spouts are the Sources of tuples in a Topology whereas Bolts are the units which process these generated tuples. The user first submits the topology to the Apache Storm Nimbus, which consults with each of the available Supervisors in the worker nodes and assigns each of them with tasks related to the topology.
 
-\begin{figure}
-  \begin{center}
-    \includegraphics[width=.7\textwidth]{topo.png}
-    \caption{Generic Storm Topology}
-    \label{fig:topo}
-   \end{center}
-\end{figure}
-
 \subsubsection{Spout} 
 \paragraph{Spouts} are the entry point for any data in the Storm Topology. As shown in the figure \ref{fig:topo} spouts take data from external source and emits them into the topology as tuples. The input source could be a Heterogenous data source.
 
 \subsubsection{Bolt} 
 \paragraph{Bolts} are the processing entities of a Topology. It receives raw tuples emitted by spouts or processed tuples sent by another bolt and sends it down the pipe after it has completed its processing.
 
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=0.85\textwidth, height= 0.23\textheight]{topo.png}
+    \caption{Generic Storm Topology}
+    \label{fig:topo}
+   \end{center}
+\end{figure}
+
 \subsection{Fault Tolerance and Resilience}
 \label{sec:resilience}
 Apache storm offers fault tolerance and resilience mechanisms with out of the box support and is tolerant against different types of failures. Nimbus, being the main master node, is in-charge of all the other worker nodes. Under the circumstance that a worker node fails, Nimbus re-spawns a worker node and assigns the tasks to this node. If the nimbus itself fails, the nimbus is not re-started automatically, but the worker nodes do not stop processing the stream. The nimbus can be later on restarted manually. During this phase, if a worker fails, it will not be restarted. The supervisor is also an active element within the Storm Architecture and keeps the Nimbus posted about it's current status. The \textbf{heartbeat} event is scheduled to run every 15 seconds and it reports to the Nimbus that the worker node is alive. \cite{stormtwitter}
+
+\begin{figure}
+  \begin{center}
+    \includegraphics[width=\textwidth, height=0.25\textheight]{throughput.png}
+    \caption{Throughput in time with respect to changing worker node availability \cite{stormtwitter}}
+    \label{fig:throughput}
+   \end{center}
+\end{figure}
+
+As we can see in figure \ref{fig:throughput}, an experiment conducted in \cite{stormtwitter} to check the resilience and performance of storm under loss of worker nodes. The worker nodes were turned off one by one in fixed durations, and the throughput of the system was measured at every instance. The durations and number of machines are shown below in table \ref{tab:experiment}. As seen, 3 machines were killed every 3 minutes, but the number of workers were limited to 50 at every instance, thus increasing the number of workers per machine. The graph \ref{fig:throughput} suggests that every 15 minutes, when the worker nodes were killed, the throughput was reduced significantly while storm tries to balance the topology again. The balancing does not require extensible amount of time and results into a new maximum throughput. As we can observe in the graph, the throughput decreses every time a node is removed, which is an expected phenomenon, due to the decrease in the computational capacity.
+
+\begin{table}
+\caption{Experimental setup during different time frames}
+\label{tab:experiment}
+\begin{center}
+\begin{tabular}{r@{\quad}cl}
+\hline
+\multicolumn{1}{l}{\rule{0pt}{12pt} 
+	Time}&\multicolumn{1}{l}{no of machines}\\[2pt]
+\hline\rule{0pt}{12pt}
+0 minutes  & 16  \\
++15 minutes & 13 \\
++30 minutes & 10 \\
++45 minutes & 7 \\
++60 mintues & 4 \\[2pt]
+\hline
+\end{tabular}
+\end{center}
+\end{table}
 
 Apache Storm supports two types of processing schemes, \textbf{at least once} where each tuple is processed as the name suggests, at least once, and the other \textbf{at most once}, where the tuples are either processed once or dropped in cases of failure. To provide \textbf{at least once} semantics, Storm maintains an acker bolt, which keeps track of the tuple flow in the directed acyclic graph.
 
@@ -272,7 +297,7 @@ Apache Storm supports two types of processing schemes, \textbf{at least once} wh
 
 \paragraph{Figure} \ref{fig:acker} shows the Acker bolt integration with the storm topology. It keeps track of the tuple flow starting from the point where it has been injected into the topology till it leaves the topology. After the tuple has left the topology, an \textbf{ack} is sent to the Spout, at this point, it can decide to remove the Tuple from memory.
 
-\section{Stream Processing: Design Considerations}
+	\section{Stream Processing: Design Considerations}
 A stream is a continuous flow of data from one point to the another. A Stream Processing system works on these data streams, the work may just be simple transformations, but also could be as complex as predictive analysis. A stream processing system depending on the nature of application has different requirements.
 
 Let us consider the news feed service provided by any social networking site, we know that in any of these websites we can read posts created by our friends or family and it does not matter if we see them at the very instance they post. But, there are cases such as a stream of purchases, where we want the data to be visible as soon as available separate design considerations should be made. This section focuses on the various considerations that are to be made while designing a stream processing system, specifically using Apache Storm.
@@ -383,26 +408,38 @@ Stream processing is a topic under constant focus at present and a lot of tools 
  \item \textbf{Flink Streaming} is also a Real time stream processing tool for distributed systems and builds batch processing on top of the Streaming engine.
  \end{enumerate}
  
- \subsection{Comparision between Storm, Spark and Samza}
+ \subsection{Comparison between Storm, Spark and Samza}
+This sub section compares the three most widely used tools for Stream Processing, i.e. Storm, Spark and Samza. 
  
- <Gather and show the differences between Storm, Spark and Samza in general>
- 
- \subsubsection{Coding}
- <Compare how the coding is in all these platforms>
+ \subsubsection{Development and Testing}
+All three tools provide their own API for development and testing. A comparision among these tools can be made on a basis of the programming languages supported, Apache Samza currently only supports JVM languages, whereas Spark Streaming supports Java, Scala and Python. Apache Storm on the other hand supports JVM as well as Non JVM languages which increases development speed, as the developers can choose their language according to their comfort. Apart from the fact that choosing a language for development, users can utilize existing code, thus allowing high portability.
  
  \subsubsection{Tool setup}
- <Compare how easy it is to setup the tools>
+Setting up of the tool in Apache Storm required minimum effort, achieved by downloading the zookeeper and storm binaries and unpacking them onto the computer. A minor configuration changes required attention, such as the location where zookeeper and storm would store data in. Apart from these details, it worked perfectly out of the box. Along the same line, Spark Streaming follows a similar approach for tool setup and can be installed by simply downloading the tarball and unpacking it. Apache Samza on the other hand maintains a repository \url(https://github.com/apache/samza-hello-samza) which contains the scripts which installs and starts the requirement dependencies in the host.
  
  \subsubsection{Deployment}
- <Compare how easy it is to deploy the code onto the tool>
+Deployment of an artifact on Apache storm is relatively easy. For the java application, one compiles the sources with all the required dependencies into a jar file. The jar file can then be easily deployed into storm via a simple command.
  
- \subsubsection{Resilience}
- <Compare the resilience model of the tools>
+ \subsubsection{Fault Tolerance}
+As stream processing systems run for extended periods, it is quite necessary that these should be able to handle various kinds of faults and still keep processing data as they enter the system. The fault tolerance model for Storm has been extensively described in section \ref{sec:resilience}. Similarly, Spark Streaming and Apache Samza also use various techniques to resolve issues while deployed. Spark Streaming uses write ahead logs(journals) to keep track of all the data operation, and during failure of a worker, the worker is restarted and a state restore is done by reading the logs. This ensures that the data is processed as required. In comparison to Apache Storm, Storm continues to process incoming tuples even when the master node fails, but in Spark, the worker nodes stop working when the master node fails until a new leader starts. This is an added bonus to Storm, since a failed master manual restart would reinstate the state of the system without many changes.
+
+\begin{figure}
+\begin{center}
+\includegraphics[width=.75 \textwidth]{comparisiongraph.png}
+\caption{Performance Comparision between Apache Storm, Apache Flink and Spark Streaming \cite{benchmark}}
+\label{fig:comparisiongraph}
+\end{center}
+\end{figure}
  
  \subsubsection{Benchmarks}
+There have not been a comparative benchmark between Apache Storm, Spark Streaming and Apache Samza, but various sources have different comparisions between tools.  \cite{benchmark} considers Apache Storm, Spark Streaming and Apache Flink. The benchmark design consisted of counting the number of events taking place in the stream. The design was setup to read data from a Kafka Event Queue, the data being processed and result updated into Redis. The result included the window start time and the window end time, thus giving  an idea about the total latency of processing. According to this benchmark, they deduced that Apache Storm and Flink had low latency, whereas Spark Streaming had higher maximum throughput depending upon the batch duration setting. Figure \ref{fig:comparisiongraph} shows the comparative analysis among Apache Flink, Spark Streaming and Apache Storm. The batch processing scheme of Spark Streaming allows it to process events with higher throughput but with a trade off that the processing is delayed with higher latency. In the figure, we can observe that storm has comparatively less delay in processing, but according to \cite{benchmark}, storm with acking beyond 135,000 events per second, could not keep up with the throughput.
  
  \section{Discussion}
-<What I felt about the tool, ease of use and other general aspects>
+Apache Storm acts as a real time stream processing tool which is capable of computing results with high reliability and minimum latency. The tool is comparatively easy to setup and configure, with out of the box configurations which is production ready. The storm API is relatively simple and does not have a complicated method calls, the programming is based on event driven programming and since storm supports read and writes based on standard IO, utilizing previously written code could be relatively easier than in the other available tools. Data is currently being generated and consumed at an unprecedented rate, thus stream processing technologies is a requirement and is gaining popularity and attention. With all the various tools available, one can decide on which tool best suites ones needs. According to the benchmarks, if minimum latency is required, Apache Storm or Apache Flink or any system with Continuous data flow model should be preferred. Whereas if high throughput is required with a non strict latency criteria, Spark streaming could prove to be a better option.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \section{Bibliography}
 \bibliographystyle{splncs03}
 \bibliography{paper}
