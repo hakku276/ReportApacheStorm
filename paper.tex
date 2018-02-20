@@ -181,7 +181,7 @@ qt=false%
 \maketitle
 
 \begin{abstract}
-Apache Storm is one of the available open source tools for Stream Data Processing. This document provides a brief overview of the intricacies of the Architecture of Storm and tends to proceed further on the details of considerations required to design a Solution based on Storm. The design considerations relating to deployment of Storm System as a Lambda or a Lambda-less Architecture and the sketch of the various internal components of Storm i.e. Bolts, Spouts. We consider a practical implementation of Storm to try and express the theoretical design considerations in practice. Finally we list out the other available tools and compare them to Storm with regard to Performance, Resilience and various other parameters.
+Apache Storm is one of the available open source tools for Stream Data Processing. This document explores the Apache Storm architecture in detail and narrates the most important features. Resilience to faults being an important factor in Stream processing due the required availability. We consider a practical implementation of Storm to try and express the theoretical design considerations in practice. We also introduce in brief tools which are currently used in general, namely Apache Samza, Apache Spark Streaming and Apache Flimk. Compare them to Storm with regard to Performance, Resilience and various other parameters.
 \end{abstract}
 
 \begin{keywords}
@@ -206,7 +206,7 @@ A company which is interested in analyzing the current outlook of the organizati
 
 \begin{figure}
   \begin{center}
-    \includegraphics[width=\textwidth]{example.png}
+    \includegraphics[width=0.85\textwidth]{example.png}
     \caption{An Example Stream Processing Scenario}
     \label{fig:example}
    \end{center}
@@ -219,7 +219,7 @@ The physical high level architecture of Storm as seen in figure \ref{fig:physica
 
 \begin{figure}
   \begin{center}
-    \includegraphics[width=.7\textwidth]{arch.png}
+    \includegraphics[width=0.85\textwidth]{arch.png}
     \caption{Storm Physical Architecture}
     \label{fig:physicalarc}
    \end{center}
@@ -239,7 +239,7 @@ The \textbf{synchronize worker process} event runs every 3 seconds and is respon
 
 \begin{figure}
   \begin{center}
-    \includegraphics[width=.7\textwidth]{worker.png}
+    \includegraphics[width=.85\textwidth]{worker.png}
     \caption{Worker Node Architecture}
     \label{fig:workerarch}
    \end{center}
@@ -271,8 +271,8 @@ Each tuple is produced and consumed by bolts, but actual communication happens b
 
 \begin{figure}
   \begin{center}
-    \includegraphics[width=\textwidth]{topo.png}
-    \caption{Generic Storm Topology}
+    \includegraphics[width=\textwidth]{communication.png}
+    \caption{Message flow in a Worker}
     \label{fig:communication}
    \end{center}
 \end{figure}
@@ -378,7 +378,7 @@ To Process the stream of tweets, we need to parse these tweets injected into the
 
 \begin{figure}
   \begin{center}
-    \includegraphics[width=.7\textwidth]{topoimpl.png}
+    \includegraphics[width=\textwidth]{topoimpl.png}
     \caption{Topology Implementation for Sentiment Analysis}
     \label{fig:topoimpl}
    \end{center}
